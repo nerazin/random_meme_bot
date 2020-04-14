@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Pycharm files
+.idea/
+
+# My test files
+some_test.py
+
+# This project secret files
+config.py
+db.pdb

@@ -1,0 +1,1 @@
+i_must_send_photo_welcome_photo = False
