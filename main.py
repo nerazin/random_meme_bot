@@ -98,7 +98,7 @@ def word_setting(message):
 def send_random_picture(message):
     if message.chat.type != "private":
         hideBoard = types.ReplyKeyboardRemove()
-        bot.send_message(message.chat.id, text='', reply_markup=hideBoard)
+        bot.send_message(message.chat.id, text='Ждём', reply_markup=hideBoard)
 
     # if message.chat.id in globals.they_want_random:
     #     bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
