@@ -18,7 +18,7 @@ import pasting_a_word
 bot = telebot.TeleBot(config.TOKEN)
 
 
-WEBHOOK_HOST = '<ip/host where the bot is running>'
+WEBHOOK_HOST = config.HOST_IP
 WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '0.0.0.0'
 
