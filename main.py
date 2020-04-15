@@ -95,10 +95,10 @@ def word_setting(message):
 
 @bot.message_handler(func=lambda message: message.text in ['Рандом', '/random'])
 def send_random_picture(message):
-    if message.chat.id in globals.they_want_random:
-        bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
-        return
-    globals.they_want_random.append(message.chat.id)
+    # if message.chat.id in globals.they_want_random:
+    #     bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
+    #     return
+    # globals.they_want_random.append(message.chat.id)
 
     bot.send_chat_action(message.chat.id, 'upload_photo')
 
@@ -123,7 +123,7 @@ def send_random_picture(message):
         bot.send_photo(message.chat.id, img)
     os.remove(out_image)
 
-    globals.they_want_random.remove(message.chat.id)
+    # globals.they_want_random.remove(message.chat.id)
 
 
 @bot.message_handler(commands=['cancel'],
@@ -162,10 +162,11 @@ def set_start_photo(message):
 @bot.message_handler(func=lambda message: True,
                      content_types=['audio', 'photo', 'voice', 'video', 'document', 'text', 'location', 'contact', 'sticker'])
 def any_other_message(message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add('Рандом')
-    my_logging(message)
-    bot.reply_to(message, 'Не понял. Извинись. /random', reply_markup=keyboard)
+    if message.chat.type == "private":
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        keyboard.add('Рандом')
+        my_logging(message)
+        bot.reply_to(message, 'Не понял. Извинись. /random', reply_markup=keyboard)
 
 
 if __name__ == '__main__':
