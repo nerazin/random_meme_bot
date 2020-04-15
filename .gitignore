@@ -133,6 +133,7 @@ dmypy.json
 
 # My test files
 some_test.py
+pics/
 
 # This project secret files
 config.py

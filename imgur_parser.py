@@ -31,7 +31,9 @@ def get_image():
         with open(path_to_file, 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
 
-        if imghdr.what(path_to_file) == 'gif': continue
+        if imghdr.what(path_to_file) == 'gif':
+            os.remove(path_to_file)
+            continue
 
         return path_to_file
 
