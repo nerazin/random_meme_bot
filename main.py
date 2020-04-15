@@ -7,8 +7,7 @@ import logging
 from telebot import types
 from telebot import apihelper
 
-import ssl
-from aiohttp import web
+import cherrypy
 
 import globals
 import imgur_parser
@@ -34,15 +33,21 @@ def my_logging(message):
         with open('log.log', 'a', encoding='utf-8') as f:
             f.write(str(message.json) + '\n')
 
-# Process webhook calls
-async def handle(request):
-    if request.match_info.get('token') == bot.token:
-        request_body_dict = await request.json()
-        update = telebot.types.Update.de_json(request_body_dict)
-        bot.process_new_updates([update])
-        return web.Response()
-    else:
-        return web.Response(status=403)
+
+# WebhookServer, process webhook calls
+class WebhookServer(object):
+    @cherrypy.expose
+    def index(self):
+        if 'content-length' in cherrypy.request.headers and \
+           'content-type' in cherrypy.request.headers and \
+           cherrypy.request.headers['content-type'] == 'application/json':
+            length = int(cherrypy.request.headers['content-length'])
+            json_string = cherrypy.request.body.read(length).decode("utf-8")
+            update = telebot.types.Update.de_json(json_string)
+            bot.process_new_updates([update])
+            return ''
+        else:
+            raise cherrypy.HTTPError(403)
 
 
 @bot.message_handler(commands=['start'])
@@ -171,23 +176,25 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         bot.remove_webhook()
 
-        app = web.Application()
-
-        app.router.add_post('/{token}/', handle)
-
+        # Set webhook
         bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
                         certificate=open(WEBHOOK_SSL_CERT, 'r'))
 
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        context.load_cert_chain(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV)
+        # Disable CherryPy requests log
+        access_log = cherrypy.log.access_log
+        for handler in tuple(access_log.handlers):
+            access_log.removeHandler(handler)
 
-        # Start aiohttp server
-        web.run_app(
-            app,
-            host=WEBHOOK_LISTEN,
-            port=WEBHOOK_PORT,
-            ssl_context=context,
-        )
+        # Start cherrypy server
+        cherrypy.config.update({
+            'server.socket_host': WEBHOOK_LISTEN,
+            'server.socket_port': WEBHOOK_PORT,
+            'server.ssl_module': 'builtin',
+            'server.ssl_certificate': WEBHOOK_SSL_CERT,
+            'server.ssl_private_key': WEBHOOK_SSL_PRIV
+        })
+
+        cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
     else:
         print('To boot with webhook use python3 main.py webhook')
         apihelper.proxy = {'https': 'https://177.87.39.104:3128'}
