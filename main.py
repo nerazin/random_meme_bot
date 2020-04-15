@@ -87,14 +87,19 @@ def word_setting(message):
     if chat_id in request:
         pdb.lremvalue(globals.setting_list_name, chat_id)
         pdb.dump()
-        bot.send_message(chat_id, 'Теперь надпись будет появляться. Изменить - /switch_word_setting')
+        bot.send_message(chat_id, 'Теперь подпись будет появляться. Изменить - /switch_word_setting')
     else:
         pdb.ladd(globals.setting_list_name, chat_id)
-        bot.send_message(chat_id, 'Теперь надписи не будет. Изменить - /switch_word_setting')
+        bot.send_message(chat_id, 'Теперь подписи не будет. Изменить - /switch_word_setting')
 
 
-@bot.message_handler(func=lambda message: message.text in ['Рандом', '/random'])
+@bot.message_handler(func=lambda message: message.text == 'Рандом')
+@bot.message_handler(commands=['random'])
 def send_random_picture(message):
+    if message.chat.type != "private":
+        hideBoard = types.ReplyKeyboardRemove()
+        bot.send_message(message.chat.id, text='', reply_markup=hideBoard)
+
     # if message.chat.id in globals.they_want_random:
     #     bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
     #     return
@@ -205,6 +210,7 @@ if __name__ == '__main__':
         cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
     else:
         print('To boot with webhook use python3 main.py webhook')
+        bot.remove_webhook()
         apihelper.proxy = {'https': 'https://177.87.39.104:3128'}
         bot.polling(none_stop=True)
 
