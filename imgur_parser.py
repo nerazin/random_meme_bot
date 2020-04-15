@@ -3,8 +3,7 @@ import random
 import os
 import shutil
 import requests
-
-noneWorking = [0, 503, 4939, 4940, 4941, 12003, 5556, 5082]
+import imghdr
 
 
 destination = './pics/'
@@ -14,53 +13,29 @@ if not os.path.exists(destination):
 
 def get_image():
     while True:
-        amount = random.randint(5, 6)  # todo make the same with 7 symbols
-        if amount == 6:
-            N = 3
-            picture = str(
-                ''.join(
-                    random.choice
-                    (string.ascii_uppercase + string.digits + string.ascii_lowercase)
-                    for _ in range(N)
-                )
-            )
-            picture2 = str(
-                ''.join(
-                    random.choice(
-                        string.digits + string.ascii_lowercase)
-                    for _ in range(N)
-                )
-            )
+        amount = random.randint(5, 7)
 
-            name = picture + picture2
+        random_symbols = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+                                 for _ in range(amount))
 
-            printsc = "http://i.imgur.com/" + "" + str(picture) + str(picture2) + ".jpg"
-            line = str(name) + ".jpg"
+        url = "https://i.imgur.com/" + random_symbols + ".jpg"
+        file_name = random_symbols + ".jpg"
 
-        if amount == 5:
-            N = 5
-
-            picture = str(''.join(
-                random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(N)
-                )
-            )
-            name = picture
-
-            printsc = "http://i.imgur.com/" + "" + str(picture) + ".jpg"
-            line = str(name) + ".jpg"
-
-        response = requests.get(printsc, stream=True)
+        response = requests.get(url, stream=True)
 
         if response.status_code == 404: continue
-        if response.url != printsc: continue
+        if response.url != url: continue
 
-        path_to_file = destination + line
+        path_to_file = destination + file_name
 
         with open(path_to_file, 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
 
+        if imghdr.what(path_to_file) == 'gif': continue
+
         return path_to_file
 
+        # noneWorking = [0, 503, 4939, 4940, 4941, 12003, 5556, 5082]
         # size = os.path.getsize(destination + line)
         #
         # if size in noneWorking:
