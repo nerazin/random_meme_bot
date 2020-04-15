@@ -95,6 +95,11 @@ def word_setting(message):
 
 @bot.message_handler(func=lambda message: message.text in ['Рандом', '/random'])
 def send_random_picture(message):
+    if message.chat.id in globals.they_want_random:
+        bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
+        return
+    globals.they_want_random.append(message.chat.id)
+
     bot.send_chat_action(message.chat.id, 'upload_photo')
 
     db_resp = pdb.lgetall('word_setting')
@@ -117,6 +122,8 @@ def send_random_picture(message):
     with open(out_image, 'rb') as img:
         bot.send_photo(message.chat.id, img)
     os.remove(out_image)
+
+    globals.they_want_random.remove(message.chat.id)
 
 
 @bot.message_handler(commands=['cancel'],
