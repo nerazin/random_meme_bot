@@ -12,8 +12,8 @@ if not os.path.exists(destination):
     os.makedirs(destination)
 
 def get_image():
-    while True:
-        amount = random.randint(5, 7)
+    for _ in range(30):
+        amount = random.randint(5, 6)
 
         random_symbols = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase)
                                  for _ in range(amount))
@@ -23,8 +23,12 @@ def get_image():
 
         response = requests.get(url, stream=True)
 
-        if response.status_code == 404: continue
-        if response.url != url: continue
+        if response.status_code == 404:
+            print('404 response')
+            continue
+        if response.url != url:
+            print(f'Redirect from {url} to {response.url}')
+            continue
 
         path_to_file = destination + file_name
 
@@ -32,8 +36,11 @@ def get_image():
             shutil.copyfileobj(response.raw, out_file)
 
         if imghdr.what(path_to_file) == 'gif':
+            print('Bad file')
             os.remove(path_to_file)
             continue
+
+        print(f'Made it - {url}')
 
         return path_to_file
 

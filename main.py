@@ -27,6 +27,8 @@ WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
 WEBHOOK_URL_BASE = "https://{}:{}".format(WEBHOOK_HOST, WEBHOOK_PORT)
 WEBHOOK_URL_PATH = "/{}/".format(config.TOKEN)
 
+if len(sys.argv) <= 1:
+    apihelper.proxy = {'https': 'https://177.87.39.104:3128'}
 
 def my_logging(message):
     if message.chat.id != config.ME:
@@ -99,21 +101,24 @@ def send_random_picture(message):
     # if message.chat.type != "private":
     #     hideBoard = types.ReplyKeyboardRemove()
     #     bot.send_message(message.chat.id, text='Ждём', reply_markup=hideBoard)
-
-    # if message.chat.id in globals.they_want_random:
-    #     bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
-    #     return
-    # globals.they_want_random.append(message.chat.id)
+    from_user = message.from_user.id
+    if from_user in globals.they_want_random:
+        bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
+        return
+    globals.they_want_random.append(from_user)
 
     bot.send_chat_action(message.chat.id, 'upload_photo')
 
     db_resp = pdb.lgetall('word_setting')
-    if message.chat.id in db_resp:
-        # He don't want a word
-        out_image = imgur_parser.get_image()
-    else:
+
+    out_image = imgur_parser.get_image()
+    if out_image is None:
+        bot.reply_to(message, 'Что-то пошло не так. Пробуй ещё раз. /random')
+        return
+
+    if message.chat.id not in db_resp:
+        # He want a word
         for _ in range(5):
-            out_image = imgur_parser.get_image()
             try:
                 pasting_a_word.draw_a_word(out_image)
             except OSError:
@@ -128,7 +133,7 @@ def send_random_picture(message):
         bot.send_photo(message.chat.id, img)
     os.remove(out_image)
 
-    # globals.they_want_random.remove(message.chat.id)
+    globals.they_want_random.remove(from_user)
 
 
 @bot.message_handler(commands=['cancel'],
@@ -163,7 +168,6 @@ def set_start_photo(message):
         bot.reply_to(message, 'Сделано')
 
 
-# Handle all other messages with content_type 'text' (content_types defaults to ['text'])
 @bot.message_handler(func=lambda message: True,
                      content_types=['audio', 'photo', 'voice', 'video', 'document', 'text', 'location', 'contact', 'sticker'])
 def any_other_message(message):
@@ -211,6 +215,5 @@ if __name__ == '__main__':
     else:
         print('To boot with webhook use python3 main.py webhook')
         bot.remove_webhook()
-        apihelper.proxy = {'https': 'https://177.87.39.104:3128'}
         bot.polling(none_stop=True)
 

@@ -22,7 +22,10 @@ def draw_a_word(file_path, path_to_wordlist='./database/russian.txt',
     img = img.convert("RGB")
     draw = ImageDraw.Draw(img)
     width, height = img.size
-    font_size = (height + width) // 18
+    if len(random_word) > 11:
+        font_size = (height + width) // 24
+    else:
+        font_size = (height + width) // 18
 
     random_font = ImageFont.truetype(f'./database/fonts/{random_font_number}.otf', font_size)
     word_width, word_height = draw.textsize(random_word, font=random_font)
