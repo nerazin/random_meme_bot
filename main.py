@@ -101,39 +101,47 @@ def send_random_picture(message):
     # if message.chat.type != "private":
     #     hideBoard = types.ReplyKeyboardRemove()
     #     bot.send_message(message.chat.id, text='Ждём', reply_markup=hideBoard)
-    from_user = message.from_user.id
-    if from_user in globals.they_want_random:
-        bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
-        return
-    globals.they_want_random.append(from_user)
+    for _ in range(3):
+        from_user = message.from_user.id
+        if from_user in globals.they_want_random:
+            bot.reply_to(message, 'Подожди. Я ещё отправляю тебе картинку')
+            return
+        globals.they_want_random.append(from_user)
 
-    bot.send_chat_action(message.chat.id, 'upload_photo')
+        bot.send_chat_action(message.chat.id, 'upload_photo')
 
-    db_resp = pdb.lgetall('word_setting')
+        db_resp = pdb.lgetall('word_setting')
 
-    out_image = imgur_parser.get_image()
-    if out_image is None:
-        bot.reply_to(message, 'Что-то пошло не так. Пробуй ещё раз. /random')
-        return
-
-    if message.chat.id not in db_resp:
-        # He want a word
-        for _ in range(5):
-            try:
-                pasting_a_word.draw_a_word(out_image)
-            except OSError:
-                os.remove(out_image)
-                continue
-            break
-        else:
-            bot.send_message(message.chat.id, 'Что-то пошло не так. Пробуй ещё раз. /random')
+        out_image = imgur_parser.get_image()
+        if out_image is None:
+            bot.reply_to(message, 'Рандом не катит. Пробуй ещё раз /random')
             return
 
-    with open(out_image, 'rb') as img:
-        bot.send_photo(message.chat.id, img)
-    os.remove(out_image)
+        if message.chat.id not in db_resp:
+            # He want a word
+            for _ in range(5):
+                try:
+                    pasting_a_word.draw_a_word(out_image)
+                except OSError:
+                    os.remove(out_image)
+                    continue
+                break
+            else:
+                bot.send_message(message.chat.id, 'Что-то пошло не так. Пробуй ещё раз. /random')
+                return
 
-    globals.they_want_random.remove(from_user)
+        with open(out_image, 'rb') as img:
+            globals.they_want_random.remove(from_user)
+            try:
+                bot.send_photo(message.chat.id, img)
+            except telebot.apihelper.ApiException:
+                os.remove(out_image)
+                continue
+        break
+    else:
+        bot.reply_to(message, '3 раза подряд попались ультра тонкие картинки, которые телега не воспринимет. '
+                              'Ты - везунчик. Пробуй ещё раз /random')
+
 
 
 @bot.message_handler(commands=['cancel'],
