@@ -70,15 +70,17 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
-    help_message_text = 'Жми "Рандом" или /random\n' \
-                        'Не добавлять надпись к изображениям - /switch_word_setting'
     if message.chat.type == "private":
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add('Рандом')
-        bot.send_message(message.chat.id, text=help_message_text,reply_markup=keyboard)
+        bot.send_message(message.chat.id, text='Жми "Рандом" или /random\n'
+                                               'Не добавлять надпись к изображениям - /switch_word_setting',
+                         reply_markup=keyboard)
     else:
         hideBoard = types.ReplyKeyboardRemove()
-        bot.send_message(message.chat.id, text=help_message_text, reply_markup=hideBoard)
+        bot.send_message(message.chat.id, text='Жми /random\n'
+                                               'Не добавлять надпись к изображениям - /switch_word_setting',
+                         reply_markup=hideBoard)
 
 
 @bot.message_handler(commands=['switch_word_setting'])
