@@ -104,9 +104,6 @@ def word_setting(message):
 @bot.message_handler(func=lambda message: message.text == 'Рандом')
 @bot.message_handler(commands=['random'])
 def send_random_picture(message):
-    # if message.chat.type != "private":
-    #     hideBoard = types.ReplyKeyboardRemove()
-    #     bot.send_message(message.chat.id, text='Ждём', reply_markup=hideBoard)
     for _ in range(3):
         from_user = message.from_user.id
         if from_user in globals.they_want_random:
@@ -140,6 +137,7 @@ def send_random_picture(message):
             globals.they_want_random.remove(from_user)
             try:
                 bot.send_photo(message.chat.id, img)
+                os.remove(out_image)
             except telebot.apihelper.ApiException:
                 os.remove(out_image)
                 continue
