@@ -155,7 +155,7 @@ def send_random_picture(message):
 def explode_the_chat(message):
     my_message = message.message_id
     message_ids_to_delete = []
-    message_num_to_send = 100
+    message_num_to_send = 10
 
     for i in range(message_num_to_send):
         response = bot.send_message(message.chat.id, str(i))
