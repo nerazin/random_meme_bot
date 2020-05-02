@@ -1,10 +1,9 @@
-from asyncio import Lock
-
 import telebot
 import config
 import pickledb
 import os
 import sys
+import time
 import logging
 from telebot import types
 from telebot import apihelper
@@ -153,20 +152,19 @@ def send_random_picture(message):
 @bot.message_handler(commands=['boom'],
                      func=lambda message: message.from_user.id == config.ME)
 def explode_the_chat(message):
-    my_message = message.message_id
     message_ids_to_delete = []
-    message_num_to_send = 10
+    message_num_to_send = 70
 
     for i in range(message_num_to_send):
         response = bot.send_message(message.chat.id, str(i))
         message_ids_to_delete.append(response.message_id)
+        time.sleep(0.3)
 
     for i in range(message_num_to_send - 1, -1, -1):
         try:
             bot.delete_message(message.chat.id, message_ids_to_delete[i])
         except:
             continue
-    bot.delete_message(message.chat.id, my_message)
 
 
 @bot.message_handler(commands=['cancel'],
