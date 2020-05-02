@@ -1,3 +1,5 @@
+from asyncio import Lock
+
 import telebot
 import config
 import pickledb
@@ -137,15 +139,34 @@ def send_random_picture(message):
             globals.they_want_random.remove(from_user)
             try:
                 bot.send_photo(message.chat.id, img)
-                os.remove(out_image)
             except telebot.apihelper.ApiException:
-                os.remove(out_image)
                 continue
+            finally:
+                os.remove(out_image)
+
         break
     else:
         bot.reply_to(message, '3 раза подряд попались ультра тонкие картинки, которые телега не воспринимет. '
                               'Ты - везунчик. Пробуй ещё раз /random')
 
+
+@bot.message_handler(commands=['boom'],
+                     func=lambda message: message.from_user.id == config.ME)
+def explode_the_chat(message):
+    my_message = message.message_id
+    message_ids_to_delete = []
+    message_num_to_send = 100
+
+    for i in range(message_num_to_send):
+        response = bot.send_message(message.chat.id, str(i))
+        message_ids_to_delete.append(response.message_id)
+
+    for i in range(message_num_to_send - 1, -1, -1):
+        try:
+            bot.delete_message(message.chat.id, message_ids_to_delete[i])
+        except:
+            continue
+    bot.delete_message(message.chat.id, my_message)
 
 
 @bot.message_handler(commands=['cancel'],
