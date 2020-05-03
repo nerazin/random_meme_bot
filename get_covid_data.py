@@ -2,7 +2,7 @@ import requests
 import time
 from datetime import datetime
 import json
-import eventlet
+
 
 class CovidDataGetter:
 
