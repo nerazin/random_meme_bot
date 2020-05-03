@@ -137,10 +137,10 @@ def send_random_picture(message):
             globals.they_want_random.remove(from_user)
             try:
                 bot.send_photo(message.chat.id, img)
-                os.remove(out_image)
             except telebot.apihelper.ApiException:
-                os.remove(out_image)
                 continue
+            finally:
+                os.remove(out_image)
         break
     else:
         bot.reply_to(message, '3 раза подряд попались ультра тонкие картинки, которые телега не воспринимет. '
