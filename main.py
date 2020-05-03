@@ -13,6 +13,7 @@ import globals
 import imgur_parser
 import pasting_a_word
 
+from get_covid_data import CovidDataGetter
 
 bot = telebot.TeleBot(config.TOKEN)
 
@@ -146,6 +147,15 @@ def send_random_picture(message):
         bot.reply_to(message, '3 раза подряд попались ультра тонкие картинки, которые телега не воспринимет. '
                               'Ты - везунчик. Пробуй ещё раз /random')
 
+
+@bot.message_handler(commands=['covid19status'])
+def send_covid_data(message):
+    getter = CovidDataGetter()
+    if getter.get_data():
+        str_to_send = getter.make_str()
+        bot.send_message(message.chat.id, str_to_send)
+    else:
+        bot.reply_to(message, 'Не удалось получить информацию о вирусе. Попробуй чуть позже')
 
 
 @bot.message_handler(commands=['cancel'],
