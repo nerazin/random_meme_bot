@@ -2,7 +2,7 @@ import requests
 import time
 from datetime import datetime
 import json
-
+import eventlet
 
 class CovidDataGetter:
 
@@ -11,7 +11,7 @@ class CovidDataGetter:
 
     def get_data(self):
         try:
-            summary_data_response = requests.get('https://api.covid19api.com/summary')
+            summary_data_response = requests.get('https://api.covid19api.com/summary', timeout=(2, 3))
         except:
             return False
         json_summary_data = json.loads(summary_data_response.text)
