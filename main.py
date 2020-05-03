@@ -63,7 +63,7 @@ def send_welcome(message):
     keyboard.add('Рандом')
 
     bot.send_message(message.chat.id, 'Привет. Нажми на кнопку "Рандом", чтобы получить рандомную картинку '
-                                      'с рандомным шрифтом и словом.\nУбрать надпись - /help\n\nИдея предложена '
+                                      'с рандомным шрифтом и словом.\nДополнительные опции - /help\n\nИдея предложена '
                                       'самым модным пупером современности @constixity',
                      reply_markup=keyboard)
     my_logging(message)
@@ -75,11 +75,13 @@ def send_help(message):
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add('Рандом')
         bot.send_message(message.chat.id, text='Жми "Рандом" или /random\n'
+                                               'Информация о COVID-19 - /covid19status\n'
                                                'Не добавлять надпись к изображениям - /switch_word_setting',
                          reply_markup=keyboard)
     else:
         hideBoard = types.ReplyKeyboardRemove()
         bot.send_message(message.chat.id, text='Жми /random\n'
+                                               'Информация о COVID-19 - /covid19status\n'
                                                'Не добавлять надпись к изображениям - /switch_word_setting',
                          reply_markup=hideBoard)
 
